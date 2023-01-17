@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.3/axios.min.js" integrity="sha512-L4lHq2JI/GoKsERT8KYa72iCwfSrKYWEyaBxzJeeITM9Lub5vlTj8tufqYk056exhjo2QDEipJrg6zen/DDtoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <title>BTCUSDT</title>
+    <style>
+        @media print {
+            .hideOnPrintPage {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row hideOnPrintPage mt-5">
+            <div class="col-3 offset-2">
+                <label>Closing Price Representation</label>
+                <select class="form-control" id="price">
+                    <option selected value="line">Line</option>
+                    <option value="column">Column</option>
+                    <option value="area">Area</option>
+                </select>
+            </div>
+            <div class="col-3">
+                <label>Volume Representation</label>
+                <select class="form-control" id="volume">
+                    <option selected value="line">Line</option>
+                    <option value="column">Column</option>
+                    <option value="area">Area</option>
+                </select>
+            </div>
+            <div class="col-4 text-center">
+                <button onclick="load()" class="btn btn-primary mt-4">Apply</button>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-10 offset-1" id="setChart">
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-10 offset-1" id="table">
+               
+            </div>
+        </div>
+    </div>
+    
+    
+</body>
+<script>
+    
+    async function load(){
+        const options = {
+        title: {
+            text: 'Closing price/Volume for BTCUSDT',
+            align: 'center'
+        },
+        chart: {
+            height: 600,
+            type: "line",
+            stacked: false
+        },
+        dataLabels: {
+            enabled: false
+        },
+        //   colors: ["#FF1654", "#247BA0"],
+        series: [],
+        stroke: {
+            width: [4, 4]
+        },
+        plotOptions: {
+            bar: {
+                columnWidth: "20%"
+            }
+        },
+        xaxis: {
+            type: 'datetime'
+        },
+        yaxis: [
+        {
+            axisTicks: {
+                show: true
+            },
+            axisBorder: {
+                show: true,
+                color: "#008ffb"
+            },
+            labels: {
+                style: {
+                    colors: "#008ffb"
+                }
+            },
+            title: {
+                text: "Closing Price",
+                style: {
+                    color: "#008ffb"
+                }
+            }
+        },
+        {
+            opposite: true,
+            axisTicks: {
+                show: true
+            },
+            axisBorder: {
+                show: true,
+                color: "#00e396"
+            },
+            labels: {
+                style: {
+                    colors: "#00e396"
+                }
+            },
+            title: {
+                text: "Volume",
+                style: {
+                    color: "#00e396"
+                }
+            }
+        }
+        ],
+        tooltip: {
+            shared: false,
+            intersect: true,
+            x: {
+                show: false
+            }
+        },
+    };
+        const res = await axios.get(`/api/data`);
+        options.series.push({name:'Closing Price',  type: document.getElementById('price').value,data:res.data.map(e=>({
+            x:e.closeTime, 
+            y:parseFloat(e.closePrice)
+        }))})
+        options.series.push({name:'Volume',type: document.getElementById('volume').value,data:res.data.map(e=>({
+            x:e.closeTime, 
+            y:parseFloat(e.volume)
+        }))})
+        document.getElementById('setChart').innerHTML = '<div id="chart"></div>';
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+
+        let html =` <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th class="text-center" scope="col">Closing Price</th>
+                        <th class="text-center" scope="col">Volume</th>
+                        <th class="text-center" scope="col">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                   `;
+        res.data.forEach((e,i)=>{
+            html +=  `<tr>
+                        <th scope="row">${i+1}</th>
+                        <td class="text-center">${e.closePrice}</td>
+                        <td class="text-center">${e.volume}</td>
+                        <td class="text-center">${new Date(e.closeTime).toLocaleDateString()}</td>
+                      </tr>`
+        })
+        html += ` </tbody></table>`
+        document.getElementById('table').innerHTML=html;
+    }
+    load();
+</script>
+</html>
