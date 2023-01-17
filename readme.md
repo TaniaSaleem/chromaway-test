@@ -21,7 +21,7 @@ The trading volume is an important factor to take this into account if you want 
 }
 ```
 ### Output  ###
-```console
+```json
 {
   "data": {
     "marketplaces": [
@@ -102,19 +102,19 @@ The trading volume is an important factor to take this into account if you want 
 ### Prerequisite ###
 You need to install node js > 14. You can skip Prerequisite if you already have node installed
 ### Node using [NVM](https://github.com/nvm-sh/nvm) ### 
-```console
+```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
 ```
-```console
+```bash
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 ```
-```console
+```bash
 nvm install 16
 ```
 ## Project Setup  ##
 
-```console
+```bash
 npm i
 npm start 
 ```
